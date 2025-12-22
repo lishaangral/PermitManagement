@@ -17,13 +17,9 @@ public partial class ApplicationDbContext : DbContext
     {
     }
 
-    public virtual DbSet<Admin> Admins { get; set; }
-
     public virtual DbSet<CustomIssuerField> CustomIssuerFields { get; set; }
 
     public virtual DbSet<Employee> Employees { get; set; }
-
-    public virtual DbSet<EmployeePermission> EmployeePermissions { get; set; }
 
     public virtual DbSet<IssuerRole> IssuerRoles { get; set; }
 
@@ -49,58 +45,17 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<ProjectStatus> ProjectStatuses { get; set; }
 
-    public virtual DbSet<User> Users { get; set; }
-
     public virtual DbSet<UserPermission> UserPermissions { get; set; }
 
     public virtual DbSet<Violation> Violations { get; set; }
 
     public virtual DbSet<ViolationImage> ViolationImages { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseMySql("server=localhost;database=indianoil_permits;user=root;password=dbms", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.39-mysql"));
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
             .UseCollation("utf8mb4_general_ci")
             .HasCharSet("utf8mb4");
-
-        modelBuilder.Entity<Admin>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("admins");
-
-            entity.HasIndex(e => e.Username, "username").IsUnique();
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp")
-                .HasColumnName("created_at");
-            entity.Property(e => e.Email)
-                .HasMaxLength(255)
-                .HasColumnName("email");
-            entity.Property(e => e.LastLogin)
-                .HasColumnType("timestamp")
-                .HasColumnName("last_login");
-            entity.Property(e => e.Name)
-                .HasMaxLength(255)
-                .HasColumnName("name");
-            entity.Property(e => e.Password)
-                .HasMaxLength(255)
-                .HasColumnName("password");
-            entity.Property(e => e.UpdatedAt)
-                .ValueGeneratedOnAddOrUpdate()
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp")
-                .HasColumnName("updated_at");
-            entity.Property(e => e.Username)
-                .HasMaxLength(50)
-                .HasColumnName("username");
-        });
 
         modelBuilder.Entity<CustomIssuerField>(entity =>
         {
@@ -182,46 +137,6 @@ public partial class ApplicationDbContext : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp")
                 .HasColumnName("updated_at");
-        });
-
-        modelBuilder.Entity<EmployeePermission>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("employee_permissions");
-
-            entity.HasIndex(e => e.EmployeeId, "employee_id");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CanAccessDashboard).HasColumnName("can_access_dashboard");
-            entity.Property(e => e.CanAccessMyPermits).HasColumnName("can_access_my_permits");
-            entity.Property(e => e.CanCreatePermits).HasColumnName("can_create_permits");
-            entity.Property(e => e.CanEditLocations)
-                .HasDefaultValueSql("'0'")
-                .HasColumnName("can_edit_locations");
-            entity.Property(e => e.CanEditPermitTypes)
-                .HasDefaultValueSql("'0'")
-                .HasColumnName("can_edit_permit_types");
-            entity.Property(e => e.CanManageUsers)
-                .HasDefaultValueSql("'0'")
-                .HasColumnName("can_manage_users");
-            entity.Property(e => e.CanViewReports)
-                .HasDefaultValueSql("'0'")
-                .HasColumnName("can_view_reports");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp")
-                .HasColumnName("created_at");
-            entity.Property(e => e.EmployeeId).HasColumnName("employee_id");
-            entity.Property(e => e.UpdatedAt)
-                .ValueGeneratedOnAddOrUpdate()
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp")
-                .HasColumnName("updated_at");
-
-            entity.HasOne(d => d.Employee).WithMany(p => p.EmployeePermissions)
-                .HasForeignKey(d => d.EmployeeId)
-                .HasConstraintName("employee_permissions_ibfk_1");
         });
 
         modelBuilder.Entity<IssuerRole>(entity =>
@@ -614,52 +529,6 @@ public partial class ApplicationDbContext : DbContext
                 .HasColumnName("updated_at");
         });
 
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("users");
-
-            entity.HasIndex(e => e.CreatedBy, "created_by");
-
-            entity.HasIndex(e => e.Username, "username").IsUnique();
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Active)
-                .IsRequired()
-                .HasDefaultValueSql("'1'")
-                .HasColumnName("active");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp")
-                .HasColumnName("created_at");
-            entity.Property(e => e.CreatedBy).HasColumnName("created_by");
-            entity.Property(e => e.Email)
-                .HasMaxLength(255)
-                .HasColumnName("email");
-            entity.Property(e => e.LastLogin)
-                .HasColumnType("timestamp")
-                .HasColumnName("last_login");
-            entity.Property(e => e.Name)
-                .HasMaxLength(255)
-                .HasColumnName("name");
-            entity.Property(e => e.Password)
-                .HasMaxLength(255)
-                .HasColumnName("password");
-            entity.Property(e => e.UpdatedAt)
-                .ValueGeneratedOnAddOrUpdate()
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp")
-                .HasColumnName("updated_at");
-            entity.Property(e => e.Username)
-                .HasMaxLength(50)
-                .HasColumnName("username");
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.Users)
-                .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("users_ibfk_1");
-        });
-
         modelBuilder.Entity<UserPermission>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
@@ -681,18 +550,18 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.PermissionId).HasColumnName("permission_id");
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
-            entity.HasOne(d => d.GrantedByNavigation).WithMany(p => p.UserPermissions)
+            entity.HasOne(d => d.GrantedByNavigation).WithMany(p => p.UserPermissionGrantedByNavigations)
                 .HasForeignKey(d => d.GrantedBy)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("user_permissions_ibfk_3");
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("user_permissions_granted_by_fk");
 
             entity.HasOne(d => d.Permission).WithMany(p => p.UserPermissions)
                 .HasForeignKey(d => d.PermissionId)
-                .HasConstraintName("user_permissions_ibfk_2");
+                .HasConstraintName("user_permissions_permission_fk");
 
-            entity.HasOne(d => d.User).WithMany(p => p.UserPermissions)
+            entity.HasOne(d => d.User).WithMany(p => p.UserPermissionUsers)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("user_permissions_ibfk_1");
+                .HasConstraintName("user_permissions_employee_fk");
         });
 
         modelBuilder.Entity<Violation>(entity =>

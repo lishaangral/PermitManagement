@@ -29,5 +29,7 @@ public partial class Employee
 
     public string? EmployeeRole { get; set; }
 
-    public virtual ICollection<EmployeePermission> EmployeePermissions { get; set; } = new List<EmployeePermission>();
+    public virtual ICollection<UserPermission> UserPermissionGrantedByNavigations { get; set; } = new List<UserPermission>();
+
+    public virtual ICollection<UserPermission> UserPermissionUsers { get; set; } = new List<UserPermission>();
 }
