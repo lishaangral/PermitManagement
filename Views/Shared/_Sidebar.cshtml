@@ -1,0 +1,19 @@
+﻿<aside id="sidebar" class="app-sidebar expanded">
+    <div class="sidebar-header">
+        <span class="sidebar-title">Menu</span>
+        <button class="sidebar-toggle"
+                type="button"
+                onclick="document.body.classList.toggle('sidebar-collapsed')">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a asp-controller="Dashboard"
+           asp-action="Index"
+           class="sidebar-link active">
+            <i class="fa fa-home"></i>
+            <span class="link-text">Dashboard</span>
+        </a>
+    </nav>
+</aside>

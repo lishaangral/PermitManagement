@@ -3,19 +3,15 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using PemitManagement.Models;
 using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using PemitManagement.Identity;
 
 namespace PemitManagement.Data;
 
-public partial class ApplicationDbContext : DbContext
+public partial class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
-    public ApplicationDbContext()
-    {
-    }
-
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options)
-    {
-    }
+        : base(options) { }
 
     public virtual DbSet<CustomIssuerField> CustomIssuerFields { get; set; }
 
@@ -53,6 +49,7 @@ public partial class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
         modelBuilder
             .UseCollation("utf8mb4_general_ci")
             .HasCharSet("utf8mb4");

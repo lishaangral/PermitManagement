@@ -3,17 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PemitManagement.Data;
 
 #nullable disable
 
-namespace PemitManagement.Data.Migrations
+namespace PemitManagement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251223055455_FixIdentityContext")]
+    partial class FixIdentityContext
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,64 +27,203 @@ namespace PemitManagement.Data.Migrations
             MySqlModelBuilderExtensions.HasCharSet(modelBuilder, "utf8mb4");
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("PemitManagement.Models.Admin", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
-                    b.Property<uint>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("id");
+                    b.Property<string>("Id")
+                        .HasColumnType("varchar(255)");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<uint>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("email");
-
-                    b.Property<DateTime?>("LastLogin")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("last_login");
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex");
+
+                    b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("RoleId")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("name");
+                        .HasColumnType("varchar(255)");
 
-                    b.Property<string>("Password")
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("UserId")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("password");
+                        .HasColumnType("varchar(255)");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("timestamp")
-                        .HasColumnName("updated_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    b.HasKey("Id");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlComputedColumn(b.Property<DateTime>("UpdatedAt"));
+                    b.HasIndex("UserId");
 
-                    b.Property<string>("Username")
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("UserId")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("username");
+                        .HasColumnType("varchar(255)");
 
-                    b.HasKey("Id")
-                        .HasName("PRIMARY");
+                    b.HasKey("LoginProvider", "ProviderKey");
 
-                    b.HasIndex(new[] { "Username" }, "username")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
-                    b.ToTable("admins", (string)null);
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("PemitManagement.Identity.ApplicationUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex");
+
+                    b.ToTable("AspNetUsers", (string)null);
                 });
 
             modelBuilder.Entity("PemitManagement.Models.CustomIssuerField", b =>
@@ -223,77 +365,6 @@ namespace PemitManagement.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("employees", (string)null);
-                });
-
-            modelBuilder.Entity("PemitManagement.Models.EmployeePermission", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("CanAccessDashboard")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("can_access_dashboard");
-
-                    b.Property<bool>("CanAccessMyPermits")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("can_access_my_permits");
-
-                    b.Property<bool>("CanCreatePermits")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("can_create_permits");
-
-                    b.Property<bool?>("CanEditLocations")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("can_edit_locations")
-                        .HasDefaultValueSql("'0'");
-
-                    b.Property<bool?>("CanEditPermitTypes")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("can_edit_permit_types")
-                        .HasDefaultValueSql("'0'");
-
-                    b.Property<bool?>("CanManageUsers")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("can_manage_users")
-                        .HasDefaultValueSql("'0'");
-
-                    b.Property<bool?>("CanViewReports")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("can_view_reports")
-                        .HasDefaultValueSql("'0'");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<int>("EmployeeId")
-                        .HasColumnType("int")
-                        .HasColumnName("employee_id");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("timestamp")
-                        .HasColumnName("updated_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlComputedColumn(b.Property<DateTime>("UpdatedAt"));
-
-                    b.HasKey("Id")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex(new[] { "EmployeeId" }, "employee_id");
-
-                    b.ToTable("employee_permissions", (string)null);
                 });
 
             modelBuilder.Entity("PemitManagement.Models.IssuerRole", b =>
@@ -917,79 +988,6 @@ namespace PemitManagement.Data.Migrations
                     b.ToTable("project_status", (string)null);
                 });
 
-            modelBuilder.Entity("PemitManagement.Models.User", b =>
-                {
-                    b.Property<uint>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("id");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<uint>("Id"));
-
-                    b.Property<bool>("Active")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("active")
-                        .HasDefaultValueSql("'1'");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<uint?>("CreatedBy")
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("created_by");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("email");
-
-                    b.Property<DateTime?>("LastLogin")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("last_login");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("password");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("timestamp")
-                        .HasColumnName("updated_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlComputedColumn(b.Property<DateTime>("UpdatedAt"));
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("username");
-
-                    b.HasKey("Id")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex(new[] { "CreatedBy" }, "created_by");
-
-                    b.HasIndex(new[] { "Username" }, "username")
-                        .IsUnique()
-                        .HasDatabaseName("username1");
-
-                    b.ToTable("users", (string)null);
-                });
-
             modelBuilder.Entity("PemitManagement.Models.UserPermission", b =>
                 {
                     b.Property<uint>("Id")
@@ -1005,16 +1003,16 @@ namespace PemitManagement.Data.Migrations
                         .HasColumnName("granted_at")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<uint>("GrantedBy")
-                        .HasColumnType("int unsigned")
+                    b.Property<int?>("GrantedBy")
+                        .HasColumnType("int")
                         .HasColumnName("granted_by");
 
                     b.Property<uint>("PermissionId")
                         .HasColumnType("int unsigned")
                         .HasColumnName("permission_id");
 
-                    b.Property<uint>("UserId")
-                        .HasColumnType("int unsigned")
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
                         .HasColumnName("user_id");
 
                     b.HasKey("Id")
@@ -1119,16 +1117,55 @@ namespace PemitManagement.Data.Migrations
                     b.ToTable("violation_images", (string)null);
                 });
 
-            modelBuilder.Entity("PemitManagement.Models.EmployeePermission", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
-                    b.HasOne("PemitManagement.Models.Employee", "Employee")
-                        .WithMany("EmployeePermissions")
-                        .HasForeignKey("EmployeeId")
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("employee_permissions_ibfk_1");
+                        .IsRequired();
+                });
 
-                    b.Navigation("Employee");
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.HasOne("PemitManagement.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.HasOne("PemitManagement.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PemitManagement.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.HasOne("PemitManagement.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PemitManagement.Models.Permit", b =>
@@ -1203,37 +1240,27 @@ namespace PemitManagement.Data.Migrations
                     b.Navigation("Violation");
                 });
 
-            modelBuilder.Entity("PemitManagement.Models.User", b =>
-                {
-                    b.HasOne("PemitManagement.Models.Admin", "CreatedByNavigation")
-                        .WithMany("Users")
-                        .HasForeignKey("CreatedBy")
-                        .HasConstraintName("users_ibfk_1");
-
-                    b.Navigation("CreatedByNavigation");
-                });
-
             modelBuilder.Entity("PemitManagement.Models.UserPermission", b =>
                 {
-                    b.HasOne("PemitManagement.Models.Admin", "GrantedByNavigation")
-                        .WithMany("UserPermissions")
+                    b.HasOne("PemitManagement.Models.Employee", "GrantedByNavigation")
+                        .WithMany("UserPermissionGrantedByNavigations")
                         .HasForeignKey("GrantedBy")
-                        .IsRequired()
-                        .HasConstraintName("user_permissions_ibfk_3");
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("user_permissions_granted_by_fk");
 
                     b.HasOne("PemitManagement.Models.Permission", "Permission")
                         .WithMany("UserPermissions")
                         .HasForeignKey("PermissionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("user_permissions_ibfk_2");
+                        .HasConstraintName("user_permissions_permission_fk");
 
-                    b.HasOne("PemitManagement.Models.User", "User")
-                        .WithMany("UserPermissions")
+                    b.HasOne("PemitManagement.Models.Employee", "User")
+                        .WithMany("UserPermissionUsers")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("user_permissions_ibfk_1");
+                        .HasConstraintName("user_permissions_employee_fk");
 
                     b.Navigation("GrantedByNavigation");
 
@@ -1254,16 +1281,11 @@ namespace PemitManagement.Data.Migrations
                     b.Navigation("PermitViolation");
                 });
 
-            modelBuilder.Entity("PemitManagement.Models.Admin", b =>
-                {
-                    b.Navigation("UserPermissions");
-
-                    b.Navigation("Users");
-                });
-
             modelBuilder.Entity("PemitManagement.Models.Employee", b =>
                 {
-                    b.Navigation("EmployeePermissions");
+                    b.Navigation("UserPermissionGrantedByNavigations");
+
+                    b.Navigation("UserPermissionUsers");
                 });
 
             modelBuilder.Entity("PemitManagement.Models.Location", b =>
@@ -1293,11 +1315,6 @@ namespace PemitManagement.Data.Migrations
             modelBuilder.Entity("PemitManagement.Models.PermitViolation", b =>
                 {
                     b.Navigation("ViolationImages");
-                });
-
-            modelBuilder.Entity("PemitManagement.Models.User", b =>
-                {
-                    b.Navigation("UserPermissions");
                 });
 
             modelBuilder.Entity("PemitManagement.Models.Violation", b =>
