@@ -3,15 +3,15 @@
 @inject SidebarService SidebarService
 
 @{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
     var items = SidebarService.GetSidebar(User);
 }
 
 <aside id="sidebar" class="app-sidebar">
     <div class="sidebar-header">
         <span class="sidebar-title">Menu</span>
-        <button class="sidebar-toggle"
-                type="button"
-                onclick="document.body.classList.toggle('sidebar-collapsed')">
+        <button class="sidebar-toggle" type="button" id="sidebarToggle">
             <i class="fa-solid fa-bars"></i>
         </button>
     </div>
@@ -28,7 +28,8 @@
             if (item.Children.Any())
             {
                 var visibleChildren = item.Children
-                .Where(c => c.RequiredPermission == null ||
+                .Where(c =>
+                c.RequiredPermission == null ||
                 User.HasClaim("permission", c.RequiredPermission))
                 .ToList();
 
@@ -36,29 +37,73 @@
                 {
                     continue;
                 }
+                    var isChildActive = visibleChildren.Any(c =>
+                    c.Controller == currentController &&
+                    c.Action == currentAction
+                    );
 
-                <div class="sidebar-group">
-                    <div class="sidebar-link">
-                        <i class="fa @item.Icon"></i>
-                        <span class="link-text">@item.Title</span>
+                    var isParentRouteActive =
+                    item.Controller == currentController &&
+                    item.Action == currentAction;
+
+                    var shouldHighlightParent =
+                    isParentRouteActive || isChildActive;
+
+                    <div class="sidebar-group @(isChildActive ? "expanded" : "")"
+                     data-first-child-controller="@visibleChildren.First().Controller"
+                     data-first-child-action="@visibleChildren.First().Action">
+
+                    <!-- Parent tab -->
+
+                    <div class="sidebar-link parent-tab @(shouldHighlightParent ? "active-parent" : "")">
+
+                        <div class="icon-col">
+                            <i class="fa @item.Icon"></i>
+                        </div>
+
+                        <div class="text-col">
+                            @item.Title
+                        </div>
+
+                        <div class="arrow-col">
+                            <i class="fa fa-chevron-right"></i>
+                        </div>
                     </div>
 
-                    @foreach (var child in visibleChildren)
-                    {
-                        <a asp-controller="@child.Controller"
-                           asp-action="@child.Action"
-                           class="sidebar-link ms-3">
-                            <i class="fa @child.Icon"></i>
-                            <span class="link-text">@child.Title</span>
-                        </a>
-                    }
+                    <!-- Children container -->
+                    <div class="sidebar-children">
+                        @foreach (var child in visibleChildren)
+                        {
+                            var isChildActiveExact =
+                                child.Controller == currentController &&
+                                child.Action == currentAction;
+
+                            <a asp-controller="@child.Controller"
+                               asp-action="@child.Action"
+                               class="sidebar-link child-tab @(isChildActiveExact ? "active-child" : "")">
+
+                                <div class="icon-col">
+                                    <i class="fa @child.Icon"></i>
+                                </div>
+
+                                <div class="text-col">
+                                    @child.Title
+                                </div>
+                            </a>
+                        }
+                    </div>
                 </div>
             }
             else
             {
+                var isTopLevelActive =
+                    item.Controller == currentController &&
+                    item.Action == currentAction;
+
                 <a asp-controller="@item.Controller"
                    asp-action="@item.Action"
-                   class="sidebar-link">
+                   class="sidebar-link @(isTopLevelActive ? "active-item" : "")">
+
                     <i class="fa @item.Icon"></i>
                     <span class="link-text">@item.Title</span>
                 </a>

@@ -7,8 +7,8 @@ public class SidebarService
 {
     public List<SidebarItemViewModel> GetSidebar(ClaimsPrincipal user)
     {
-        bool Has(string permission) =>
-            user.HasClaim("permission", permission);
+        //bool Has(string permission) =>
+        //    user.HasClaim("permission", permission);
 
         return new List<SidebarItemViewModel>
         {
