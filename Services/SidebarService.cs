@@ -21,9 +21,9 @@ public class SidebarService
 
             new()
             {
-                Title = "Permit Analysis",
+                Title = "Report Analysis",
                 Icon = "fa-chart-line",
-                Controller = "PermitAnalysis"
+                Controller = "ReportAnalysis"
             },
 
             new()

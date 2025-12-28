@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 
 [Authorize]
-public class PermitAnalysisController : Controller
+public class ReportAnalysisController : Controller
 {
     public IActionResult Index()
     {

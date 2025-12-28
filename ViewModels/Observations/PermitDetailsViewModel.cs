@@ -4,6 +4,8 @@ namespace PemitManagement.ViewModels.Observations
 {
     public class PermitDetailsViewModel
     {
+        public uint PermitId { get; set; }
+
         [Required(ErrorMessage = "Permit number is required")]
         public string? PermitNumber { get; set; }
 
@@ -12,6 +14,7 @@ namespace PemitManagement.ViewModels.Observations
 
         // Permit Information
         public string? PermitType { get; set; }
+        public uint PermitTypeId { get; set; }
         public string? AgencyName { get; set; }
         public string? WorkOrderNumber { get; set; }
         public string? ContractWorkerName { get; set; }

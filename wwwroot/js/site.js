@@ -107,5 +107,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     ?.classList.remove('show');
             });
         });
+
 });
 

@@ -1,24 +1,170 @@
-﻿@{
-    ViewData["Title"] = "Violations";
-}
+﻿@model PemitManagement.ViewModels.Observations.ViolationsPageViewModel
 
 <partial name="_ObservationSteps" model="3" />
 
-<div class="row justify-content-center">
-    <div class="col-xl-6 col-lg-8 col-md-10">
-        <div class="card shadow-sm border-0 rounded-4">
+<form asp-action="SubmitViolations" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="PermitId" />
+
+    <div class="container-xl">
+
+        <!-- MAIN CARD -->
+        <div class="card observation-card shadow-sm border-0 mb-4">
             <div class="card-body p-4 text-center">
-                <h5 class="fw-bold mb-2">Violation Selection</h5>
-                <p class="text-muted">
-                    Violation selection and evidence upload will be implemented here.
+
+                <h4 class="fw-bold mb-1">Select Violations</h4>
+                <p class="text-muted mb-3">
+                    Showing violations related to:
+                    <strong>@Model.PermitTypeName</strong>
                 </p>
 
-                <div class="d-flex justify-content-start mt-4">
-                    <a asp-action="PermitDetails" class="btn btn-outline-secondary">
-                        Back
-                    </a>
+                <!-- SEARCH -->
+                <div class="row g-2 mb-3 align-items-center">
+                    <div class="col-md-10">
+                        <input type="text"
+                               id="violationSearch"
+                               class="form-control"
+                               placeholder="Search violations..."
+                               autocomplete="off" />
+                    </div>
+
+                    <div class="col-md-1 d-grid">
+                        <button type="button"
+                                id="searchBtn"
+                                class="btn btn-outline-primary">
+                            Search
+                        </button>
+                    </div>
+
+                    <div class="col-md-1 d-grid">
+                        <button type="button"
+                                id="clearSearchBtn"
+                                class="btn btn-outline-secondary">
+                            Clear
+                        </button>
+                    </div>
                 </div>
+
+
+                <!-- FILTER TABS -->
+                <div class="d-flex flex-wrap gap-2 mb-4" id="filterTabs">
+                    <button type="button" class="filter-tab active" data-type="all">
+                        All
+                    </button>
+
+                    @foreach (var c in Model.AllCategories)
+                    {
+                        <button type="button"
+                                class="filter-tab"
+                                data-type="category"
+                                data-value="@c">
+                            @c
+                        </button>
+                    }
+
+                    @foreach (var s in Model.AllSeverities)
+                    {
+                        <button type="button"
+                                class="filter-tab severity-@s"
+                                data-type="severity"
+                                data-value="@s">
+                            @s.ToUpper()
+                        </button>
+                    }
+                </div>
+
+                <div class="row">
+
+                    <!-- LEFT: AVAILABLE VIOLATIONS -->
+                    <div class="col-12 col-sm-7 mb-3 mb-lg-0 text-start">
+
+                        <div class="card h-100">
+                            <div class="card-body p-2">
+                                <div id="violationsList" class="list-group">
+                                    @foreach (var v in Model.AvailableViolations)
+                                    {
+                                        <div class="list-group-item violation-item"
+                                             data-name="@v.Name.ToLower()"
+                                             data-category="@v.Category"
+                                             data-severity="@v.Severity">
+
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <strong>@v.Name</strong><br />
+                                                    <small class="text-muted">
+                                                        @v.Category · @v.Severity
+                                                    </small>
+                                                </div>
+
+                                                <button type="button"
+                                                        class="btn btn-sm btn-outline-orange add-violation"
+                                                        data-id="@v.ViolationId"
+                                                        data-name="@v.Name"
+                                                        data-category="@v.Category"
+                                                        data-severity="@v.Severity">
+                                                    Add
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: SELECTED -->
+                    <div class="col-12 col-sm-5 text-start">
+
+                        <div class="card h-100">
+                            <div class="card-body p-2">
+                                <h6 class="fw-semibold mb-2">Selected Violations</h6>
+                                <div id="selectedViolations" class="border rounded p-2">
+                                    <p class="text-muted mb-0" id="emptySelected">
+                                        No violations selected.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                      
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- DETAILS SECTION -->
+        <div id="detailsSection" class="d-none">
+
+            <h4 class="fw-bold mb-3">Violation Details</h4>
+
+            <div id="detailsCards"></div>
+        </div>
+
+        <!-- NAVIGATION -->
+        <div class="d-flex justify-content-between mt-4">
+            <a asp-action="PermitDetails" class="btn btn-outline-secondary">
+                Back
+            </a>
+
+            <button type="submit" class="btn btn-orange">
+                Submit
+            </button>
+        </div>
+
+    </div>
+</form>
+
+<div class="modal fade" id="imagePreviewModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-body p-2 text-center">
+                <img id="modalPreviewImage" class="img-fluid rounded" />
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/violations.js"></script>
+}
