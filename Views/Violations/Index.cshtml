@@ -1,8 +1,129 @@
 ﻿@{
     ViewData["Title"] = "Violations";
 }
+@using PemitManagement.ViewModels.Violations
+<link rel="stylesheet" href="~/css/permits.css" />
 
-<div class="container mt-4">
-    <h2>Violations</h2>
-    <p>This is a placeholder dashboard.</p>
+<div class="page-header text-center mb-2">
+    <h2>Manage Violations</h2>
+    <p class="text-muted">View violations and their details. You can create new violations or edit existing ones.</p>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between">
+        Choose Filters
+        <button type="button"
+                class="btn btn-orange"
+                data-bs-toggle="modal"
+                data-bs-target="#createViolationModal">
+            + Add New Violation
+        </button>
+    </div>
+
+    <div class="card-body">
+        <form method="get" class="d-flex justify-content-between align-items-center">
+            <div>
+                Show
+                @{
+                    var pageSizes = new List<SelectListItem>
+                                {
+                                new SelectListItem { Text = "10", Value = "10", Selected = Model.PageSize == 10 },
+                                new SelectListItem { Text = "25", Value = "25", Selected = Model.PageSize == 25 },
+                                new SelectListItem { Text = "50", Value = "50", Selected = Model.PageSize == 50 }
+                                };
+                }
+                <select name="PageSize"
+                        asp-items="pageSizes"
+                        onchange="this.form.submit()">
+                </select>
+
+                entries
+            </div>
+
+            <input name="search"
+                   value="@Model.Search"
+                   class="form-control w-25"
+                   placeholder="Search..." />
+        </form>
+    </div>
+</div>
+
+<div class="card-header mb-2">Violation List</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Severity</th>
+                    <th>Permit Types</th>
+                    <th>Status</th>
+                    <th class="action">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var v in Model.Violations)
+                {
+                    <tr>
+                        <td>@v.Id</td>
+                        <td>@v.Name</td>
+                        <td>@v.Description</td>
+                        <td class="text-center">@v.Category</td>
+
+                        <td class="text-center">
+                            <span class="badge severity-@v.Severity">
+                                @v.Severity.ToUpper()
+                            </span>
+                        </td>
+
+                        <td>
+                            @string.Join(", ", v.PermitTypes)
+                        </td>
+
+                        <td class="text-center">
+                            <span class="badge @(v.Active ? "bg-success" : "bg-secondary")">
+                                @(v.Active ? "Active" : "Inactive")
+                            </span>
+                        </td>
+
+                        <td class="actions-cell">
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-view">Edit</button>
+
+                                <button class="btn btn-sm btn-close-permit"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteViolationModal-@v.Id">
+                                    Delete
+                                </button>
+                            </div>                            
+                        </td>
+                    </tr>
+
+                    @await Html.PartialAsync(
+                        "_CreateViolationModal",
+                        new CreateViolationViewModel()
+                    )
+
+                    @await Html.PartialAsync("_ConfirmModal",
+                    new ConfirmModalViewModel
+                    {
+                        ModalId = $"deleteViolationModal-{v.Id}",
+                        Title = "Confirm Deletion",
+                        BodyHtml =
+                            $"Are you sure you want to delete the violation: <strong>{v.Name}</strong>?<br/>" +
+                            "<span class='text-danger'>This action cannot be undone if the violation has not been used in any permits.</span>",
+                        ConfirmAction = "Delete",
+                        Controller = "Violations",
+                        EntityId = v.Id,
+                        ConfirmButtonClass = "btn-danger"
+                    })
+                        }
+            </tbody>
+        </table>
+    </div>
 </div>

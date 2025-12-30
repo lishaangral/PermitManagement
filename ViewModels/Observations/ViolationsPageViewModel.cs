@@ -11,7 +11,7 @@ public class ViolationsPageViewModel
     public List<string> SelectedCategories { get; set; } = new();
     public List<string> SelectedSeverities { get; set; } = new();
 
-    public List<ViolationListItemViewModel> AvailableViolations { get; set; } = new();
+    public List<ViolationListItemVM> AvailableViolations { get; set; } = new();
     public List<SelectedViolationViewModel> SelectedViolations { get; set; } = new();
 
     public List<string> AllCategories { get; set; } = new();
@@ -19,7 +19,7 @@ public class ViolationsPageViewModel
 
     public bool ShowDetailsSection => SelectedViolations.Any();
 }
-public class ViolationListItemViewModel
+public class ViolationListItemVM
 {
     public uint ViolationId { get; set; }
     public string Name { get; set; } = "";

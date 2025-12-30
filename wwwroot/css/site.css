@@ -654,3 +654,23 @@ html.sidebar-collapsed body {
 .d-none {
     display: none !important;
 }
+
+.severity-low {
+    background: #0fa46f;
+    color: white;
+}
+
+.severity-medium {
+    background: #facc15;
+    color: black;
+}
+
+.severity-high {
+    background: #dc2626;
+    color: white;
+}
+
+.table td, .table th {
+    vertical-align: middle;
+}
+

@@ -192,7 +192,7 @@ public class ObservationsController : Controller
             .ToList();
 
 
-        vm.AvailableViolations = allViolations.Select(v => new ViolationListItemViewModel
+        vm.AvailableViolations = allViolations.Select(v => new ViolationListItemVM
         {
             ViolationId = v.Id,
             Name = v.Name,
