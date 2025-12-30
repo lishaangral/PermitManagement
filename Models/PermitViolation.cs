@@ -1,6 +1,6 @@
-﻿using System;
+﻿using PemitManagement.Data.Enums;
+using System;
 using System.Collections.Generic;
-
 namespace PemitManagement.Models;
 
 public partial class PermitViolation
@@ -22,4 +22,11 @@ public partial class PermitViolation
     public virtual Violation Violation { get; set; } = null!;
 
     public virtual ICollection<ViolationImage> ViolationImages { get; set; } = new List<ViolationImage>();
+
+    public ObservationStatus Status { get; set; } = ObservationStatus.Open;
+
+    public DateTime? ClosedAt { get; set; }
+
+    public string? ClosedBy { get; set; }
+
 }

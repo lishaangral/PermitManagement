@@ -1,0 +1,84 @@
+﻿@using PemitManagement.Data.Enums
+@model PermitViolationViewModel
+<link rel="stylesheet" href="~/css/permit-details.css" />
+
+<div class="card violation-card mb-3">
+
+    <!-- HEADER -->
+    <div class="card-header violation-header">
+        <div>
+            <strong>@Model.ViolationName</strong>
+            <span class="badge severity-@Model.Severity ms-2">
+                @Model.Severity.ToUpper()
+            </span>
+            <span class="badge bg-secondary ms-1">
+                @Model.Category
+            </span>
+        </div>
+
+        <span class="text-muted small">
+            @Model.CreatedAt.ToString("dd MMM yyyy HH:mm")
+        </span>
+    </div>
+
+    <!-- BODY -->
+    <div class="card-body">
+
+        <div class="mb-3">
+            <strong>Remarks</strong>
+            <div class="text-muted">
+                @Html.Raw((Model.Remarks ?? "—").Replace("\r\n", "<br />"))
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <strong>Action Taken</strong>
+            <div class="text-muted">
+                @Html.Raw((Model.ActionTaken ?? "—").Replace("\r\n", "<br />"))
+            </div>
+        </div>
+
+        @if (Model.Images.Any())
+        {
+            <div class="violation-images mb-3">
+                @foreach (var img in Model.Images)
+                {
+                    <img src="@Url.Content(img)"
+                         class="violation-img"
+                         onclick="openPreview('@img')" />
+                }
+            </div>
+        }
+
+        <!-- ACTION -->
+        @if (User.HasClaim("permission", "close_permits") && !Model.IsPermitClosed)
+        {
+            <button class="btn btn-sm @(Model.Status == ObservationStatus.Open ? "btn-close-obs" : "btn-open-obs")"
+                    data-bs-toggle="modal"
+                    data-bs-target="#obsStatusModal-@Model.PermitViolationId">
+                @(Model.Status == ObservationStatus.Open ? "Close Observation" : "Reopen Observation")
+            </button>
+        }
+        else if (Model.IsPermitClosed)
+        {
+            <span class="text-muted fst-italic">
+                As Permit is closed, observation is locked.
+            </span>
+        }
+
+    </div>
+</div>
+
+@await Html.PartialAsync(
+    "_ConfirmModal",
+    new ConfirmModalViewModel
+    {
+        ModalId = $"obsStatusModal-{Model.PermitViolationId}",
+        Title = Model.Status == ObservationStatus.Open ? "Close Observation" : "Reopen Observation",
+        BodyHtml = $"Are you sure you want to <strong>{(Model.Status == ObservationStatus.Open ? "Close" : "Reopen")}</strong> this observation <strong>{Model.ViolationName}</strong>?",
+        ConfirmAction = "ToggleObservation",
+        Controller = "Permits",
+        EntityId = Model.PermitViolationId,
+        ConfirmButtonClass = Model.Status == ObservationStatus.Open ? "btn-danger" : "btn-warning"
+    }
+)

@@ -308,6 +308,15 @@ public partial class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.WorkTime)
                 .HasColumnType("time")
                 .HasColumnName("work_time");
+            entity.Property(p => p.Status)
+                .HasConversion<int>()
+                .HasColumnName("status");
+
+            entity.Property(e => e.ClosedAt)
+                  .HasColumnName("closed_at");
+
+            entity.Property(e => e.ClosedBy)
+                  .HasColumnName("closed_by");
 
             entity.HasOne(d => d.Location).WithMany(p => p.Permits)
                 .HasForeignKey(d => d.LocationId)
@@ -486,6 +495,16 @@ public partial class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .HasColumnType("text")
                 .HasColumnName("remarks");
             entity.Property(e => e.ViolationId).HasColumnName("violation_id");
+
+            entity.Property(v => v.Status)
+                .HasConversion<int>()
+                .HasColumnName("status");
+
+            entity.Property(e => e.ClosedAt)
+                .HasColumnName("closed_at");
+
+            entity.Property(e => e.ClosedBy)
+                .HasColumnName("closed_by");
 
             entity.HasOne(d => d.Permit).WithMany(p => p.PermitViolations)
                 .HasForeignKey(d => d.PermitId)

@@ -29,7 +29,7 @@
                         <input asp-for="PermitNumber"
                                class="form-control form-control-lg permit-input
                            @(ViewData.ModelState["PermitNumber"]?.Errors.Any() == true ? "is-invalid" : "")"
-                               placeholder="e.g. 9060HT25002281"
+                               placeholder="For example: 9060HT25002281"
                                aria-required="true" />
 
                         <span asp-validation-for="PermitNumber" class="invalid-feedback"></span>

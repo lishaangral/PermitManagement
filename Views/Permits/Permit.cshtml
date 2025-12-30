@@ -1,0 +1,224 @@
+﻿@{
+    ViewData["Title"] = "View Permit";
+}
+
+@model DetailsViewModel
+@using PemitManagement.Data.Enums
+
+<link rel="stylesheet" href="~/css/permit-details.css" />
+
+<div class="permit-header">
+    <div>
+        <h4>Permit Details</h4>
+    </div>
+    <div class="actions d-flex gap-2">
+
+        @if (User.HasClaim("permission", "close_permits"))
+        {
+            <button class="btn @(Model.Status == PermitStatus.Open ? "btn-close-obs" : "btn-open-obs")"
+                    data-bs-toggle="modal"
+                    data-bs-target="#permitStatusModal">
+                @(Model.Status == PermitStatus.Open ? "Close Permit" : "Reopen Permit")
+            </button>
+        }
+        <a asp-action="Index" class="btn btn-back">← Back</a>
+    </div>
+</div>
+
+<div class="row g-4 mt-3">
+
+    <div class="col-lg-6">
+        <div class="info-card">
+            <h6 class="info-card-title">Permit Information</h6>
+            <div class="info-row"><span>Permit Number</span><strong>@Model.PermitNumber</strong></div>
+            <div class="info-row"><span>Type</span><strong>@Model.PermitType</strong></div>
+            <div class="info-row">
+                <span>Latest Observation</span>
+                <strong>@(Model.LatestObservationAt?.ToString("dd MMM yyyy HH:mm") ?? "—")</strong>
+            </div>
+            <div class="info-row">
+                <span>Status</span><strong class="badge @(Model.Status == PermitStatus.Open ? "bg-success" : "bg-danger")">
+                    @Model.StatusText
+                </strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="info-card">
+            <h6 class="info-card-title">Personnel Information</h6>
+            <div class="info-row"><span>Employee Name</span><strong>@Model.EmployeeName</strong></div>
+            <div class="info-row"><span>Employee ID</span><strong>@Model.EmployeeId</strong></div>
+            <div class="info-row"><span>Receiver Name</span><strong>@Model.ReceiverName</strong></div>
+            <div class="info-row"><span>Receiver ID</span><strong>@Model.ReceiverEmployeeId</strong></div>
+        </div>
+        
+    </div>
+</div>
+
+<div class="row g-4 mt-3">
+
+    <div class="col-lg-6">
+        <div class="info-card">
+            <h6 class="info-card-title">Location Information</h6>
+            <div class="info-row"><span>Refinery</span><strong>@Model.Refinery</strong></div>
+            <div class="info-row"><span>Location</span><strong>@Model.Location</strong></div>
+            <div class="info-row"><span>Exact Location</span><strong>@(Model.ExactLocation)</strong></div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="info-card">
+            <h6 class="info-card-title">Additional Information</h6>
+            <div class="info-row"><span>Work Order Number</span><strong>@(Model.WorkOrderNumber)</strong></div>
+            <div class="info-row"><span>Agency</span><strong>@(Model.AgencyName)</strong></div>
+            <div class="info-row"><span>Contract Worker</span><strong>@Model.ContractWorkerName</strong></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-3">
+    <div class="col-lg-12">
+        @if (Model.Issuers.Any())
+        {
+            <div class="info-card">
+                <h6 class="info-card-title">Issuers</h6>
+                @foreach (var i in Model.Issuers)
+                {
+                    <div class="info-row">
+                        <span>@i.RoleName</span>
+                        <strong>@i.EmployeeName <span>(@i.EmployeeId)</span></strong>
+
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<div class="row g-4 mt-3">
+
+    <div class="col-lg-6">
+        <div class="info-card">
+            <h6 class="info-card-title">
+                Open Violations (Summary)
+                <span class="badge bg-danger ms-2">
+                    @Model.OpenViolations.Count
+                </span>
+            </h6>
+
+            @if (Model.OpenViolations.Any())
+            {
+                <ul class="list-group list-group-flush">
+                    @foreach (var v in Model.OpenViolations)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>@v.ViolationName</span>
+                            <span class="badge severity-@v.Severity">
+                                @v.Severity.ToUpper()
+                            </span>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <div class="text-muted">No open violations</div>
+            }
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="info-card">
+            <h6 class="info-card-title">
+                Closed Violations (Summary)
+                <span class="badge bg-success ms-2">
+                    @Model.ClosedViolations.Count
+                </span>
+            </h6>
+
+            @if (Model.ClosedViolations.Any())
+            {
+                <ul class="list-group list-group-flush">
+                    @foreach (var v in Model.ClosedViolations)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>@v.ViolationName</span>
+                            <span class="badge severity-@v.Severity">
+                                @v.Severity.ToUpper()
+                            </span>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <div class="text-muted">No closed violations</div>
+            }
+        </div>
+    </div>
+
+</div>
+
+@if (Model.OpenViolations.Any())
+{
+    <div class="row g-4 mt-3">
+        <div class="col-lg-12">
+
+            <div class="info-card">
+                <h6 class="info-card-title">Active Observations</h6>
+                @foreach (var v in Model.OpenViolations)
+                {
+                    <partial name="_ViolationCard" model="v" />
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@if (Model.ClosedViolations.Any())
+{
+    <div class="row g-4 mt-3">
+        <div class="col-lg-12">
+            <div class="info-card">
+                <h6 class="info-card-title">Resolved Observations</h6>
+                @foreach (var v in Model.ClosedViolations)
+                {
+                    <partial name="_ViolationCard" model="v" />
+                }
+            </div>
+        </div>
+    </div>    
+}
+
+
+@await Html.PartialAsync(
+    "_ConfirmModal",
+    new ConfirmModalViewModel
+    {
+        ModalId = "permitStatusModal",
+        Title = Model.Status == PermitStatus.Open ? "Close Permit" : "Reopen Permit",
+        BodyHtml = $"Are you sure you want to <strong>{(Model.Status == PermitStatus.Open ? "Close" : "Reopen")}</strong> permit <strong>{Model.PermitNumber}</strong>?<br/>All related observations will also be updated.",
+        ConfirmAction = "ToggleStatus",
+        Controller = "Permits",
+        EntityId = Model.PermitId,
+        ConfirmButtonClass = Model.Status == PermitStatus.Open ? "btn-danger" : "btn-warning"
+    }
+)
+
+<div class="modal fade" id="imagePreviewModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-body p-2 text-center">
+                <img id="modalPreviewImage"
+                     class="img-fluid rounded"
+                     alt="Violation Image Preview" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="@Url.Content("~/js/permit-details.js")"></script>
+}
+

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PemitManagement.Data;
 
@@ -11,9 +12,11 @@ using PemitManagement.Data;
 namespace PemitManagement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251229034339_AddPermitAndObservationLifecycle")]
+    partial class AddPermitAndObservationLifecycle
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -562,12 +565,10 @@ namespace PemitManagement.Migrations
                         .HasColumnName("agency_name");
 
                     b.Property<DateTime?>("ClosedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("closed_at");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("ClosedBy")
-                        .HasColumnType("longtext")
-                        .HasColumnName("closed_by");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("ContractWorkerName")
                         .HasMaxLength(255)
@@ -642,8 +643,7 @@ namespace PemitManagement.Migrations
                         .HasColumnName("receiver_name");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int")
-                        .HasColumnName("status");
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
@@ -917,12 +917,10 @@ namespace PemitManagement.Migrations
                         .HasColumnName("action_taken");
 
                     b.Property<DateTime?>("ClosedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("closed_at");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("ClosedBy")
-                        .HasColumnType("longtext")
-                        .HasColumnName("closed_by");
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -939,8 +937,7 @@ namespace PemitManagement.Migrations
                         .HasColumnName("remarks");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int")
-                        .HasColumnName("status");
+                        .HasColumnType("int");
 
                     b.Property<uint>("ViolationId")
                         .HasColumnType("int unsigned")

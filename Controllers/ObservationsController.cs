@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PemitManagement.Data;
+using PemitManagement.Data.Enums;
 using PemitManagement.Models;
 using PemitManagement.ViewModels.Observations;
 
@@ -72,7 +73,8 @@ public class ObservationsController : Controller
                 Permit = p,
                 PermitType = p.PermitType.Name,
                 LocationName = p.Location.Name,
-                Refinery = p.Location.RefineryType
+                Refinery = p.Location.RefineryType,
+                Status = p.Status
             })
             .FirstOrDefaultAsync();
 
@@ -80,6 +82,14 @@ public class ObservationsController : Controller
         {
             model.PermitFound = false;
             TempData["ToastMessage"] = "Permit not found.";
+            return View("PermitDetails", model);
+        }
+
+        if (permit.Status == PermitStatus.Closed)
+        {
+            model.PermitFound = false;
+            TempData["ToastMessage"] =
+                "This permit is closed. Observations cannot be added to closed permits.";
             return View("PermitDetails", model);
         }
 
@@ -134,8 +144,17 @@ public class ObservationsController : Controller
         var permitEntity = await _context.Permits
             .AsNoTracking()
             .Where(p => p.PermitNumber == permit.PermitNumber)
-            .Select(p => new { p.Id, PermitType = p.PermitType.Name, p.PermitTypeId })
+            .Select(p => new { p.Id, PermitType = p.PermitType.Name, p.PermitTypeId, p.Status })
             .FirstAsync();
+
+        if (permitEntity.Status == PermitStatus.Closed)
+        {
+            TempData["ToastMessage"] =
+                "This permit has been closed. You cannot add observations.";
+            HttpContext.Session.Remove("permit-details");
+            HttpContext.Session.Remove("violations-page");
+            return RedirectToAction(nameof(PermitDetails));
+        }
 
         var violationsQuery =
             from ptv in _context.PermitTypeViolations
@@ -192,6 +211,18 @@ public class ObservationsController : Controller
     public async Task<IActionResult> SubmitViolations(SubmitViolationsViewModel model)
     {
         var permitDetails = HttpContext.Session.GetObject<PermitDetailsViewModel>("permit-details");
+
+        var permitStatus = await _context.Permits
+            .Where(p => p.Id == model.PermitId)
+            .Select(p => p.Status)
+            .FirstOrDefaultAsync();
+
+        if (permitStatus == PermitStatus.Closed)
+        {
+            TempData["ToastMessage"] =
+                "This permit is already closed. Observation submission is not allowed.";
+            return RedirectToAction(nameof(PermitDetails));
+        }
 
         if (permitDetails == null)
         {
@@ -291,11 +322,16 @@ public class ObservationsController : Controller
                         await using var stream = new FileStream(filePath, FileMode.Create);
                         await image.CopyToAsync(stream);
 
+                        var relativePath = Path
+                            .GetRelativePath("wwwroot", filePath)
+                            .Replace("\\", "/");
+
                         _context.ViolationImages.Add(new ViolationImage
                         {
                             PermitViolationId = permitViolation.Id,
-                            ImagePath = filePath.Replace("wwwroot/", string.Empty)
+                            ImagePath = "/" + relativePath
                         });
+
                     }
                 }
             }

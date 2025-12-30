@@ -1,6 +1,6 @@
-﻿using System;
+﻿using PemitManagement.Data.Enums;
+using System;
 using System.Collections.Generic;
-
 namespace PemitManagement.Models;
 
 public partial class Permit
@@ -52,4 +52,10 @@ public partial class Permit
     public virtual PermitType PermitType { get; set; } = null!;
 
     public virtual ICollection<PermitViolation> PermitViolations { get; set; } = new List<PermitViolation>();
+
+    public PermitStatus Status { get; set; } = PermitStatus.Open;
+
+    public DateTime? ClosedAt { get; set; }
+
+    public string? ClosedBy { get; set; }
 }

@@ -3,9 +3,9 @@
     public static class PermissionConstants
     {
         public const string CreateObservations = "create_observations";
-        public const string DeleteObservations = "delete_observations";
+        public const string CloseObservations = "close_observations";
         public const string CreatePermits = "create_permits";
-        public const string DeletePermits = "delete_permits";
+        public const string ClosePermits = "close_permits";
         public const string EditPermits = "edit_permits";
         public const string ManageLocations = "manage_locations";
         public const string ManagePermitTypes = "manage_permit_types";
@@ -17,9 +17,9 @@
         public static readonly string[] All =
         {
             CreateObservations,
-            DeleteObservations,
+            CloseObservations,
             CreatePermits,
-            DeletePermits,
+            ClosePermits,
             EditPermits,
             ManageLocations,
             ManagePermitTypes,

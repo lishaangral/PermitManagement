@@ -1,0 +1,119 @@
+﻿.permit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1f3a8a;
+    color: #fff;
+    padding: 16px 20px;
+    border-radius: 10px;
+}
+
+.violation-card {
+    border-left: 6px solid #f97316;
+    transition: transform .2s ease;
+}
+
+    .violation-card:hover {
+        transform: translateY(-2px);
+    }
+
+.violation-img {
+    width: 120px;
+    height: auto;
+    margin-right: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-close-obs {
+    background: #dc2626;
+    color: #fff;
+    border-radius: 8px;
+    padding: 0.35rem 0.9rem;
+}
+
+.btn-close-obs:hover {
+    background: #b91c1c;
+}
+
+.btn-open-obs {
+    background: #ffc107;
+    border-radius: 8px;
+    padding: 0.35rem 0.9rem;
+    color: black;
+}
+
+.btn-open-obs:hover {
+    background: #ca9900;
+}
+
+.severity-low {
+    background: #0fa46f;
+    align-content: center;
+}
+
+.severity-medium {
+    background: #ffc107;
+    align-content: center;
+}
+
+.severity-high {
+    background: #c01e1e;
+    align-content: center;
+}
+
+.btn-back {
+    border-radius: 8px;
+    color: aliceblue;
+    background: inherit;
+    border: 1px solid aliceblue;
+}
+
+.btn-back:hover {
+    background: aliceblue;
+    color: #1f3a8a;
+}
+
+.btn.disabled {
+    opacity: 0.6;
+    cursor: no-drop;
+    pointer-events: all;
+}
+
+.list-group-item {
+    border: none;
+    padding: 0.4rem 0;
+    font-size: 0.7rem;
+    background: #f8fafc;
+    border-radius: 12px;
+}
+
+    .list-group-item + .list-group-item {
+        border-top: 1px dashed #e5e7eb;
+    }
+
+.violation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.violation-images {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.violation-img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.violation-img {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+}
