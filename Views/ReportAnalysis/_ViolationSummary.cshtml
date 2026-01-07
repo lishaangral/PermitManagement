@@ -1,0 +1,35 @@
+﻿@model List<PemitManagement.ViewModels.ReportAnalysis.ViolationReportSummaryVM>
+
+<div class="card mt-3 h-100">
+    <div class="card-header">Violations Summary</div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Violation</th>
+                    <th>Severity</th>
+                    <th>Total Permits</th>
+                    <th>Permits with Violations</th>
+                    <th>Total Violations</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var v in Model)
+                {
+                    <tr>
+                        <td>@v.ViolationName</td>
+                        <td>
+                            <span class="badge severity-@v.Severity">
+                                @v.Severity
+                            </span>
+                        </td>
+                        <td><span class="badge bg-primary">@v.TotalPermits</span></td>
+                        <td><span class="badge bg-warning">@v.PermitsWithViolations</span></td>
+                        <td><span class="badge bg-danger">@v.TotalViolations</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

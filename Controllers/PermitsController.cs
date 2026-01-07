@@ -357,6 +357,7 @@ public class PermitsController : Controller
             Remarks = v.Remarks ?? "N/A",
             ActionTaken = v.ActionTaken ?? "N/A",
             CreatedAt = v.CreatedAt,
+            CreatedBy = (v.CreatedBy == "" ? "N/A" : v.CreatedBy),
             ClosedAt = v.ClosedAt,
             Status = v.Status,
             IsPermitClosed = isPermitClosed,
@@ -396,7 +397,7 @@ public class PermitsController : Controller
         return View(vm);
     }
 
-    [Authorize(Policy = "close_permits")]
+    [Authorize(Policy = "close_observations")]
     [HttpPost]
     public async Task<IActionResult> ToggleObservation(int id)
     {

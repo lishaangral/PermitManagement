@@ -506,6 +506,10 @@ public partial class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.ClosedBy)
                 .HasColumnName("closed_by");
 
+            entity.Property(e => e.CreatedBy)
+                .HasColumnName("created_by")
+                .HasMaxLength(255);
+
             entity.HasOne(d => d.Permit).WithMany(p => p.PermitViolations)
                 .HasForeignKey(d => d.PermitId)
                 .HasConstraintName("permit_violations_ibfk_1");
@@ -565,6 +569,10 @@ public partial class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.GrantedBy).HasColumnName("granted_by");
             entity.Property(e => e.PermissionId).HasColumnName("permission_id");
             entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.Property(e => e.Active)
+            .HasColumnName("active")
+            .HasDefaultValue(true);
 
             entity.HasOne(d => d.GrantedByNavigation).WithMany(p => p.UserPermissionGrantedByNavigations)
                 .HasForeignKey(d => d.GrantedBy)

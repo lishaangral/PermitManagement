@@ -1,16 +1,388 @@
-﻿@{
+﻿@model PemitManagement.ViewModels.ReportAnalysis.ReportAnalysisViewModel
+@using PemitManagement.Data.Enums
+
+@{
     ViewData["Title"] = "Report Analysis";
 }
 
-<div class="container-xl">
-    <div class="card border-0 rounded-4 shadow-sm observation-card">
-        <div class="card-body p-5 text-center">
+<link rel="stylesheet" href="~/css/permits.css" />
+<link rel="stylesheet" href="~/css/report.css" />
 
-            <h4 class="fw-bold mb-2">Report Analysis</h4>
-            <p class="text-muted mb-0">
-                Recently submitted observations will appear here.
-            </p>
+<!-- HEADER -->
+<div class="page-header text-center mb-3">
+    <h2>Report Analysis</h2>
+    <p class="text-muted">
+        Analyze permits and observations based on time, employees, agencies, refinery type and violations.
+    </p>
+</div>
 
+<!-- FILTER CARD -->
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between">
+        <span>Filters</span>
+        <button class="btn btn-sm btn-outline-secondary" type="button" id="toggleFilters">
+            Collapse
+        </button>
+    </div>
+
+    <div class="card-body" id="filterPanel">
+        <form method="get">
+            <div class="row g-3">
+
+                <div class="col-md-3">
+                    <label>Report Type</label>
+                    <select class="form-select" asp-for="Filters.ReportType">
+                        @foreach (var rt in Enum.GetValues(typeof(ReportType)))
+                        {
+                            <option value="@rt">@rt</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label>Permit Number</label>
+                    <input class="form-control" asp-for="Filters.PermitNumber" />
+                </div>
+
+                <div class="col-md-3">
+                    <label>Work Order Number</label>
+                    <input class="form-control" asp-for="Filters.WorkOrderNumber" />
+                </div>
+
+                <div class="col-md-3">
+                    <label>Violation</label>
+                    <input class="form-control" asp-for="Filters.ViolationId" placeholder="Violation ID" />
+                </div>
+
+                <div class="col-md-3">
+                    <label>From Date</label>
+                    <input type="date" class="form-control" asp-for="Filters.FromDate" />
+                </div>
+
+                <div class="col-md-3">
+                    <label>To Date</label>
+                    <input type="date" class="form-control" asp-for="Filters.ToDate" />
+                </div>
+
+            </div>
+
+            <div class="mt-3 d-flex gap-2 align-items-center">
+                <!-- Generate -->
+                <button type="submit" class="btn btn-orange">
+                    Generate Report
+                </button>
+
+                <!-- Clear -->
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    Clear
+                </a>
+
+                <!-- RIGHT SIDE ACTIONS -->
+                <div class="ms-auto d-flex gap-2">
+                    <a asp-action="ExportCsv"
+                       asp-route-PermitNumber="@Model.Filters.PermitNumber"
+                       asp-route-WorkOrderNumber="@Model.Filters.WorkOrderNumber"
+                       asp-route-PermitTypeId="@Model.Filters.PermitTypeId"
+                       asp-route-LocationId="@Model.Filters.LocationId"
+                       asp-route-RefineryType="@Model.Filters.RefineryType"
+                       asp-route-ViolationId="@Model.Filters.ViolationId"
+                       asp-route-ReportType="@Model.Filters.ReportType"
+                       asp-route-FromDate="@Model.Filters.FromDate"
+                       asp-route-ToDate="@Model.Filters.ToDate"
+                       class="btn btn-success">
+                        Export CSV
+                    </a>
+
+                    <a asp-action="ExportExcel"
+                       asp-route-PermitNumber="@Model.Filters.PermitNumber"
+                       asp-route-WorkOrderNumber="@Model.Filters.WorkOrderNumber"
+                       asp-route-PermitTypeId="@Model.Filters.PermitTypeId"
+                       asp-route-LocationId="@Model.Filters.LocationId"
+                       asp-route-RefineryType="@Model.Filters.RefineryType"
+                       asp-route-ViolationId="@Model.Filters.ViolationId"
+                       asp-route-ReportType="@Model.Filters.ReportType"
+                       asp-route-FromDate="@Model.Filters.FromDate"
+                       asp-route-ToDate="@Model.Filters.ToDate"
+                       class="btn btn-primary">
+                        Export Excel
+                    </a>
+
+                    <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
+                        Print
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- REPORT SUMMARY -->
+<div class="card mb-4">
+    <div class="card-header">Report Summary</div>
+
+    <div class="card-body">
+        <div class="row g-3">
+
+            <!-- SUMMARY STATS -->
+            <div class="col-md-5">
+                <div class="info-card h-100">
+                    <div class="info-card-title">Summary Statistics</div>
+
+                    <div class="info-row">
+                        <span>Total Permits</span>
+                        <strong>@Model.TotalPermits</strong>
+                    </div>
+
+                    <div class="info-row">
+                        <span>Total Violations</span>
+                        <strong>@Model.TotalViolations</strong>
+                    </div>
+
+                    <div class="info-row">
+                        <span>Permits With Violations</span>
+                        <strong>@Model.PermitsWithViolations</strong>
+                    </div>
+
+                    <div class="info-row">
+                        <span>Date Range</span>
+                        <strong>
+                            @Model.Filters.FromDate?.ToString("dd MMM yyyy")
+                            -
+                            @Model.Filters.ToDate?.ToString("dd MMM yyyy")
+                        </strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISUALIZATION -->
+            <div class="col-md-7">
+                <div class="info-card h-100">
+                    <div class="info-card-title">Report Visualization</div>
+                    <div class="chart-container">
+                        <canvas id="reportChart"
+                                data-labels='@Json.Serialize(Model.ChartLabels)'
+                                data-permits='@Json.Serialize(Model.ChartPermits)'
+                                data-violations='@Json.Serialize(Model.ChartViolations)'>
+                        </canvas>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- REPORT TYPE SPECIFIC SUMMARY -->
+        <div class="h-100">
+            @if (Model.Filters.ReportType == ReportType.ByEmployee)
+            {
+                <partial name="_EmployeeSummary" model="Model.EmployeeSummary" />
+            }
+            else if (Model.Filters.ReportType == ReportType.ByAgency)
+            {
+                <partial name="_AgencySummary" model="Model.AgencySummary" />
+            }
+            else if (Model.Filters.ReportType == ReportType.ByRefineryType)
+            {
+                <partial name="_RefinerySummary" model="Model.RefinerySummary" />
+            }
+            else if (Model.Filters.ReportType == ReportType.ByViolation)
+            {
+                <partial name="_ViolationSummary" model="Model.ViolationSummary" />
+            }
+            else
+            {
+                <partial name="_TimeSummary" model="Model.TimeSummary" />
+            }
         </div>
     </div>
 </div>
+
+@* <div class="card mb-4">
+    <div class="card-header">
+        Report Summary
+    </div>
+
+    <div class="card-body">
+        <div class="row mb-3">
+
+            <!-- SUMMARY STATS -->
+            <div class="col-md-6">
+                <div class="border rounded p-3 h-100">
+                    <h6 class="mb-3">Summary Statistics</h6>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Total Records</span>
+                        <strong>@Model.TotalRecords</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Total Pages</span>
+                        <strong>@Model.TotalPages</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISUALIZATION -->
+            <div class="col-md-6">
+                <div class="border rounded p-3 h-100 text-center">
+                    <h6 class="mb-3">Report Visualization</h6>
+                    <div class="text-muted">
+                        (Chart will be rendered here)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REPORT TYPE SPECIFIC SUMMARY -->
+        @if (Model.Filters.ReportType == ReportType.ByEmployee)
+        {
+            <partial name="_EmployeeSummary" model="Model.EmployeeSummary" />
+        }
+        else if (Model.Filters.ReportType == ReportType.ByAgency)
+        {
+            <partial name="_AgencySummary" model="Model.AgencySummary" />
+        }
+        else if (Model.Filters.ReportType == ReportType.ByRefineryType)
+        {
+            <partial name="_RefinerySummary" model="Model.RefinerySummary" />
+        }
+        else if (Model.Filters.ReportType == ReportType.ByViolation)
+        {
+            <partial name="_ViolationSummary" model="Model.ViolationSummary" />
+        }
+        else
+        {
+            <partial name="_TimeSummary" model="Model.TimeSummary" />
+        }
+
+    </div>
+</div> *@
+
+<!-- DETAILED LIST -->
+<div class="card mt-4">
+    <div class="card-header d-flex justify-content-between">
+        <span>Detailed Observations</span>
+        <span class="badge bg-secondary">@Model.TotalRecords Records</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Permit #</th>
+                    <th>Employee</th>
+                    <th>Agency</th>
+                    <th>Work Order</th>
+                    <th>Violation</th>
+                    <th>Severity</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th class="action">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model.Rows)
+                {
+                    <tr>
+                        <td>@r.PermitNumber</td>
+                        <td>@r.Employee</td>
+                        <td>@r.Agency</td>
+                        <td>@r.WorkOrder</td>
+                        <td>@r.Violation</td>
+                        <td>
+                            <span class="badge severity-@r.Severity">
+                                @r.Severity.ToUpper()
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <span class="status-badge @(r.ObservationStatus == ObservationStatus.Open ? "status-open" : "status-closed")">
+                                @r.ObservationStatus
+                            </span>
+                        </td>
+                        <td>@r.CreatedAt.ToString("dd MMM yyyy HH:mm")</td>
+                        <td class="actions-cell">
+                            <a asp-controller="Permits"
+                               asp-action="Permit"
+                               asp-route-id="@r.PermitId"
+                               class="btn btn-sm btn-view">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PAGINATION -->
+    @{
+        int current = Model.Page;
+        int total = Model.TotalPages;
+        int start = Math.Max(1, current - 2);
+        int end = Math.Min(total, current + 2);
+    }
+
+    <nav>
+        <ul class="pagination justify-content-center mt-2 mb-2">
+            <li class="page-item @(current == 1 ? "disabled" : "")">
+                <a class="page-link" 
+                   asp-action="Index"
+                   asp-route-PermitNumber="@Model.Filters.PermitNumber"
+                   asp-route-WorkOrderNumber="@Model.Filters.WorkOrderNumber"
+                   asp-route-PermitTypeId="@Model.Filters.PermitTypeId"
+                   asp-route-LocationId="@Model.Filters.LocationId"
+                   asp-route-RefineryType="@Model.Filters.RefineryType"
+                   asp-route-ViolationId="@Model.Filters.ViolationId"
+                   asp-route-ReportType="@Model.Filters.ReportType"
+                   asp-route-FromDate="@Model.Filters.FromDate"
+                   asp-route-ToDate="@Model.Filters.ToDate"
+                   asp-route-Page="@(current - 1)">
+                       Previous
+                </a>
+            </li>
+
+            @for (int i = start; i <= end; i++)
+            {
+                <li class="page-item @(i == current ? "active" : "")">
+                    <a class="page-link" 
+                       asp-action="Index"
+                       asp-route-PermitNumber="@Model.Filters.PermitNumber"
+                       asp-route-WorkOrderNumber="@Model.Filters.WorkOrderNumber"
+                       asp-route-PermitTypeId="@Model.Filters.PermitTypeId"
+                       asp-route-LocationId="@Model.Filters.LocationId"
+                       asp-route-RefineryType="@Model.Filters.RefineryType"
+                       asp-route-ViolationId="@Model.Filters.ViolationId"
+                       asp-route-ReportType="@Model.Filters.ReportType"
+                       asp-route-FromDate="@Model.Filters.FromDate"
+                       asp-route-ToDate="@Model.Filters.ToDate"
+                       asp-route-Page="@i">
+                            @i
+                    </a>
+                </li>
+            }
+
+            <li class="page-item @(current >= total ? "disabled" : "")">
+                <a class="page-link" 
+                   asp-action="Index"
+                   asp-route-PermitNumber="@Model.Filters.PermitNumber"
+                   asp-route-WorkOrderNumber="@Model.Filters.WorkOrderNumber"
+                   asp-route-PermitTypeId="@Model.Filters.PermitTypeId"
+                   asp-route-LocationId="@Model.Filters.LocationId"
+                   asp-route-RefineryType="@Model.Filters.RefineryType"
+                   asp-route-ViolationId="@Model.Filters.ViolationId"
+                   asp-route-ReportType="@Model.Filters.ReportType"
+                   asp-route-FromDate="@Model.Filters.FromDate"
+                   asp-route-ToDate="@Model.Filters.ToDate" 
+                   asp-route-Page="@(current + 1)">
+                    Next
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+@section Scripts {
+    <script src="~/js/permit-index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="~/js/report-analysis.js"></script>
+}

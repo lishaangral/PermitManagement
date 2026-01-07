@@ -1,41 +1,33 @@
 ﻿@using PemitManagement.ViewModels.Violations
-@model CreateViolationViewModel
+@model EditViolationViewModel
 @{
     var categories = ViewBag.Categories as List<string> ?? new();
-    var permitTypes = ViewBag.PermitTypes as List<PermitType> ?? new List<PermitType>();
+    var permitTypes = ViewBag.PermitTypes as List<PermitType> ?? new();
 }
 
-<div class="modal fade" id="createViolationModal" tabindex="-1">
+<div class="modal fade" id="editViolationModal-@Model.Id" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
+        <div class="modal-content violation-modal">
 
-            <form asp-action="Create"
-                  asp-controller="Violations"
-                  method="post">
+            <form asp-action="Update" asp-controller="Violations" method="post">
                 @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
 
                 <div class="modal-header">
-                    <h5 class="modal-title">Add New Violation</h5>
-                    <button type="button" 
-                            class="btn-close" 
+                    <h5 class="modal-title">Edit Violation</h5>
+                    <button class="btn-close btn-close-white"
                             data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body">
 
-                    <div class="mb-3">
-                        <label class="form-label">Violation Name *</label>
-                        <input class="form-control"
-                               name="Name"
-                               required />
-                    </div>
+                    <label class="form-label">Violation Name *</label>
+                    <input asp-for="Name" class="form-control mb-3" required />
 
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea class="form-control"
-                                  name="Description"
-                                  rows="3"></textarea>
-                    </div>
+                    <label>Description</label>
+                    <textarea asp-for="Description"
+                              class="form-control mb-3"
+                              rows="3"></textarea>
 
                     <div class="row mb-3">
                         <div class="col-md-6">
@@ -44,7 +36,14 @@
                                 <option value="">Select</option>
                                 @foreach (var c in categories)
                                 {
-                                    <option value="@c">@c</option>
+                                    @if (Model.Category == c)
+                                    {
+                                        <option value="@c" selected>@c</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@c">@c</option>
+                                    }
                                 }
                             </select>
                         </div>
@@ -61,19 +60,18 @@
 
                     <hr />
 
-                    <label class="fw-semibold mb-2">
-                        Applicable Permit Types
-                    </label>
+                    <label class="fw-semibold">Applicable Permit Types</label>
                     <div class="row">
                         @foreach (var pt in permitTypes)
                         {
-                            <div class="col-md-6 mb-1">
+                            <div class="col-md-6">
                                 <label class="form-check-label">
                                     <input type="checkbox"
                                            class="form-check-input me-1"
                                            name="PermitTypeIds"
-                                           value="@pt.Id" /> 
-                                           @pt.Name
+                                           value="@pt.Id"
+                                           checked="@Model.PermitTypeIds.Contains((int)pt.Id)" />
+                                    @pt.Name
                                 </label>
                             </div>
                         }
@@ -81,33 +79,30 @@
 
                     <hr />
 
-                    <div class="form-check form-switch">
+                    <div class="form-check form-switch mt-3">
                         <input class="form-check-input"
                                type="checkbox"
                                name="Active"
                                value="true"
-                               checked />
+                               @(Model.Active ? "checked" : "") />
 
                         <label class="form-check-label">
                             Active
                         </label>
                     </div>
-
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button"
-                            class="btn btn-outline-secondary"
+                    <button class="btn btn-outline-secondary"
                             data-bs-dismiss="modal">
                         Cancel
                     </button>
-
-                    <button type="submit"
-                            class="btn btn-primary">
-                        Add Violation
+                    <button class="btn btn-primary">
+                        Update Violation
                     </button>
                 </div>
             </form>
+
         </div>
     </div>
 </div>

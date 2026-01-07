@@ -1,0 +1,29 @@
+﻿@media print {
+    .app-navbar,
+    .app-sidebar,
+    .footer,
+    #toggleFilters,
+    .btn,
+    .pagination {
+        display: none !important;
+    }
+
+    .card {
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    .card-header {
+        background-color: white;
+        color: black;
+    }
+
+    body {
+        background: #fff;
+    }
+
+    .app-content {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}

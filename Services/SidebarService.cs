@@ -62,27 +62,27 @@ public class SidebarService
                         Action = "Create",
                         RequiredPermission = "create_permits"
                     },
-                    new()
-                    {
-                        Title = "Permit Types",
-                        Icon = "fa-layer-group",
-                        Controller = "PermitTypes",
-                        RequiredPermission = "manage_permit_types"
-                    },
-                    new()
-                    {
-                        Title = "Permit Type Issuers",
-                        Icon = "fa-users",
-                        Controller = "PermitTypeIssuers",
-                        RequiredPermission = "manage_permit_type_issuers"
-                    },
-                    new()
-                    {
-                        Title = "Permit Type Violations",
-                        Icon = "fa-ban",
-                        Controller = "PermitTypeViolations",
-                        RequiredPermission = "manage_permit_type_violations"
-                    }
+                    //new()
+                    //{
+                    //    Title = "Permit Types",
+                    //    Icon = "fa-layer-group",
+                    //    Controller = "PermitTypes",
+                    //    RequiredPermission = "manage_permit_types"
+                    //},
+                    //new()
+                    //{
+                    //    Title = "Permit Type Issuers",
+                    //    Icon = "fa-users",
+                    //    Controller = "PermitTypeIssuers",
+                    //    RequiredPermission = "manage_permit_type_issuers"
+                    //},
+                    //new()
+                    //{
+                    //    Title = "Permit Type Violations",
+                    //    Icon = "fa-ban",
+                    //    Controller = "PermitTypeViolations",
+                    //    RequiredPermission = "manage_permit_type_violations"
+                    //}
                 }
             },
 
@@ -94,21 +94,21 @@ public class SidebarService
                 RequiredPermission = "manage_violations"
             },
 
-            new()
-            {
-                Title = "Manage Issuer Roles",
-                Icon = "fa-user-shield",
-                Controller = "IssuerRoles",
-                RequiredPermission = "manage_issuer_roles"
-            },
+            //new()
+            //{
+            //    Title = "Manage Issuer Roles",
+            //    Icon = "fa-user-shield",
+            //    Controller = "IssuerRoles",
+            //    RequiredPermission = "manage_issuer_roles"
+            //},
 
-            new()
-            {
-                Title = "Manage Locations",
-                Icon = "fa-location-dot",
-                Controller = "Locations",
-                RequiredPermission = "manage_locations"
-            }
+            //new()
+            //{
+            //    Title = "Manage Locations",
+            //    Icon = "fa-location-dot",
+            //    Controller = "Locations",
+            //    RequiredPermission = "manage_locations"
+            //}
         };
     }
 }

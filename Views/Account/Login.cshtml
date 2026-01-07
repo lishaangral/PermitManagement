@@ -5,11 +5,11 @@
 
 <div class="page-center row justify-content-center">
     <div class="col-md-4">
-        <div class="card shadow">
-            <div class="card-header text-center bg-primary text-white">
+        <div class="login-card shadow">
+            <div class="login-card-header text-center">
                 <h4>Employee Login</h4>
             </div>
-            <div class="card-body">
+            <div class="login-card-body">
                 <form asp-action="Login" method="post">
                     @Html.AntiForgeryToken()
 
@@ -25,7 +25,7 @@
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
 
-                    <button type="submit" class="btn btn-warning w-100">
+                    <button type="submit" class="btn btn-orange w-100">
                         Login
                     </button>
 

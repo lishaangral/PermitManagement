@@ -34,7 +34,10 @@ public class PermissionClaimService
 
         // Fetch permissions from DB (employee-based)
         var permissions = await _db.UserPermissions
-            .Where(up => up.UserId == user.EmployeeId)
+            .Where(up =>
+                up.UserId == user.EmployeeId &&
+                up.Active == true
+            )
             .Select(up => up.Permission.Name)
             .ToListAsync();
 

@@ -3,21 +3,6 @@
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    //document.querySelectorAll(".sidebar-group").forEach(group => {
-
-    //    const controller = group.dataset.firstChildController;
-    //    const action = group.dataset.firstChildAction;
-    //    if (!controller || !action) return;
-
-    //    const key = `sidebar-group-${controller}-${action}`;
-
-    //    // Restore ONLY if user explicitly expanded it before
-    //    if (localStorage.getItem(key) === "user") {
-    //        group.classList.add("expanded");
-    //        group.classList.add("user-toggled");
-    //    }
-    //});
-
     /* TOAST */
 
     const toastEl = document.querySelector(".toast");
@@ -71,16 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    ///* NAVIGATION MUST NOT TOUCH STAT) */
-
-    //document.querySelectorAll(".sidebar-link").forEach(link => {
-    //    link.addEventListener("click", (e) => {
-    //        e.stopPropagation();
-    //        e.preventDefault();
-    //    });
-    //});
-
-    /* PARENT ICON / TEXT → NAVIGATE TO FIRST CHIL) */
+    /* PARENT ICON / TEXT → NAVIGATE TO FIRST CHILD) */
 
     document.querySelectorAll(".parent-tab .icon-col, .parent-tab .text-col")
         .forEach(el => {

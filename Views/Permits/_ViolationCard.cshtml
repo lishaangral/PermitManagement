@@ -16,6 +16,12 @@
             </span>
         </div>
 
+        <div class="text-muted small mb-2">
+            <i class="bi bi-person"></i>
+            Observed by: <strong>@Model.CreatedBy</strong>
+        </div>
+
+
         <span class="text-muted small">
             @Model.CreatedAt.ToString("dd MMM yyyy HH:mm")
         </span>
@@ -27,14 +33,14 @@
         <div class="mb-3">
             <strong>Remarks</strong>
             <div class="text-muted">
-                @Html.Raw((Model.Remarks ?? "—").Replace("\r\n", "<br />"))
+                @Html.Raw((Model.Remarks).Replace("\r\n", "<br />"))
             </div>
         </div>
 
         <div class="mb-3">
             <strong>Action Taken</strong>
             <div class="text-muted">
-                @Html.Raw((Model.ActionTaken ?? "—").Replace("\r\n", "<br />"))
+                @Html.Raw((Model.ActionTaken).Replace("\r\n", "<br />"))
             </div>
         </div>
 
@@ -51,7 +57,7 @@
         }
 
         <!-- ACTION -->
-        @if (User.HasClaim("permission", "close_permits") && !Model.IsPermitClosed)
+        @if (User.HasClaim("permission", "close_observations") && !Model.IsPermitClosed)
         {
             <button class="btn btn-sm @(Model.Status == ObservationStatus.Open ? "btn-close-obs" : "btn-open-obs")"
                     data-bs-toggle="modal"

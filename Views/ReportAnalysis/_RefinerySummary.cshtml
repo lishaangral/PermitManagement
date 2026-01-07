@@ -1,0 +1,29 @@
+﻿@model List<PemitManagement.ViewModels.ReportAnalysis.RefineryReportSummaryVM>
+
+<div class="card mt-3 h-100">
+    <div class="card-header">Permits by Refinery Type</div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Refinery Type</th>
+                    <th>Total Permits</th>
+                    <th>Permits with Violations</th>
+                    <th>Total Violations</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model)
+                {
+                    <tr>
+                        <td>@r.RefineryType</td>
+                        <td><span class="badge bg-primary">@r.TotalPermits</span></td>
+                        <td><span class="badge bg-warning">@r.PermitsWithViolations</span></td>
+                        <td><span class="badge bg-danger">@r.TotalViolations</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -15,25 +15,17 @@ public class ViolationsController : Controller
         _context = context;
     }
 
-    // INDEX (LIST + PAGINATION)
-    public async Task<IActionResult> Index(
-        string? search,
-        int page = 1,
-        int pageSize = 10)
+    // LIST
+    public async Task<IActionResult> Index(int page = 1, int pageSize = 10, string? search = null)
     {
         if (page <= 0) page = 1;
         if (pageSize <= 0) pageSize = 10;
-
         var query = _context.Violations.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(search))
-        {
-            query = query.Where(v =>
-                v.Name.Contains(search) ||
-                v.Category!.Contains(search));
-        }
+            query = query.Where(v => v.Name.Contains(search));
 
-        var totalCount = await query.CountAsync();
+        var total = await query.CountAsync();
 
         var violations = await query
             .OrderBy(v => v.Name)
@@ -48,31 +40,35 @@ public class ViolationsController : Controller
                 Severity = v.Severity ?? "N/A",
                 Active = v.Active == true,
                 PermitTypes = _context.PermitTypeViolations
-                    .Where(ptv => ptv.ViolationId == v.Id)
-                    .Select(ptv => ptv.PermitType.Name)
+                    .Where(x => x.ViolationId == v.Id)
+                    .Select(x => x.PermitType.Name)
                     .ToList()
             })
             .ToListAsync();
 
-        // Needed by CREATE MODAL
         ViewBag.PermitTypes = await _context.PermitTypes
-            .Where(p => p.Active == true)
-            .OrderBy(p => p.Name)
+            .Where(x => x.Active == true)
+            .OrderBy(x => x.Name)
             .ToListAsync();
 
-        var vm = new ManageViolationsViewModel
+        ViewBag.Categories = await _context.Violations
+            .Where(v => v.Category != null)
+            .Select(v => v.Category!)
+            .Distinct()
+            .OrderBy(x => x)
+            .ToListAsync();
+
+        return View(new ManageViolationsViewModel
         {
             Violations = violations,
-            Search = search,
             Page = page,
             PageSize = pageSize,
-            TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
-        };
-
-        return View(vm);
+            TotalPages = (int)Math.Ceiling(total / (double)pageSize),
+            Search = search
+        });
     }
 
-    // CREATE (MODAL POST)
+    // CREATE
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateViolationViewModel model)
@@ -94,7 +90,7 @@ public class ViolationsController : Controller
                 Category = model.Category,
                 Severity = model.Severity,
                 Active = model.Active,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
             };
 
             _context.Violations.Add(violation);
@@ -103,6 +99,7 @@ public class ViolationsController : Controller
             // Map permit types
             if (model.PermitTypeIds != null && model.PermitTypeIds.Any())
             {
+
                 foreach (var ptId in model.PermitTypeIds)
                 {
                     _context.PermitTypeViolations.Add(new PermitTypeViolation
@@ -124,11 +121,58 @@ public class ViolationsController : Controller
             await tx.RollbackAsync();
             TempData["ToastMessage"] = "Failed to create violation.";
         }
-
         return RedirectToAction(nameof(Index));
     }
 
-    // DELETE (SAFE STRATEGY)
+    // UPDATE
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Update(EditViolationViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData["ToastMessage"] = "Invalid violation details.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var violation = await _context.Violations
+            .Include(v => v.PermitTypeViolations)
+            .FirstOrDefaultAsync(v => v.Id == model.Id);
+
+        if (violation == null)
+            return NotFound();
+
+        violation.Name = model.Name.Trim();
+        violation.Description = model.Description;
+        violation.Category = model.Category;
+        violation.Severity = model.Severity;
+        violation.Active = model.Active;  
+        violation.UpdatedAt = DateTime.UtcNow;
+
+        // Reset permit type mapping
+        _context.PermitTypeViolations.RemoveRange(violation.PermitTypeViolations);
+
+        if (model.PermitTypeIds != null)
+        {
+            foreach (var ptId in model.PermitTypeIds)
+            {
+                _context.PermitTypeViolations.Add(new PermitTypeViolation
+                {
+                    ViolationId = violation.Id,
+                    PermitTypeId = (uint)ptId,
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        await _context.SaveChangesAsync();
+
+        TempData["ToastMessage"] = "Violation updated successfully.";
+        return RedirectToAction(nameof(Index));
+    }
+
+
+    // DELETE
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

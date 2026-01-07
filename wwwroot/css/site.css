@@ -330,7 +330,7 @@ html.sidebar-collapsed body {
 }
 
 .login-card-header {
-    background-color: #0d6efd;
+    background-color: #213875;
     color: #ffffff;
     padding: 16px;
     font-size: 20px;
@@ -674,3 +674,31 @@ html.sidebar-collapsed body {
     vertical-align: middle;
 }
 
+/* Description column */
+td:nth-child(3) {
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Permit types column */
+td:nth-child(6) {
+    min-width: 260px;
+}
+
+.violation-modal {
+    border-radius: 14px;
+    box-shadow: 0 20px 40px rgba(0,0,0,.25);
+}
+
+.modal-body label {
+    font-weight: 600;
+    color: #374151;
+}
+
+.chart-wrapper {
+    position: relative;
+    height: 350px; 
+    max-height: 400px;
+    width: 100%;
+}

@@ -86,14 +86,18 @@
                         </td>
 
                         <td class="text-center">
-                            <span class="badge @(v.Active ? "bg-success" : "bg-secondary")">
+                            <span class="status-badge @(v.Active ? "status-open" : "status-closed")">
                                 @(v.Active ? "Active" : "Inactive")
                             </span>
                         </td>
 
                         <td class="actions-cell">
                             <div class="action-buttons">
-                                <button class="btn btn-sm btn-view">Edit</button>
+                                <button class="btn btn-sm btn-view"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editViolationModal-@v.Id">
+                                    Edit
+                                </button>
 
                                 <button class="btn btn-sm btn-close-permit"
                                         data-bs-toggle="modal"
@@ -122,8 +126,57 @@
                         EntityId = v.Id,
                         ConfirmButtonClass = "btn-danger"
                     })
-                        }
+
+                    @await Html.PartialAsync("_EditViolationModal",
+                        new EditViolationViewModel
+                        {
+                            Id = v.Id,
+                            Name = v.Name,
+                            Description = v.Description,
+                            Category = v.Category,
+                            Severity = v.Severity,
+                            Active = v.Active,
+                            PermitTypeIds = new List<int>() // will be overridden by GET if needed
+                        })
+                    }
             </tbody>
         </table>
+
+        <nav>
+            <ul class="pagination justify-content-center mt-3">
+
+                <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-route-page="@(Model.Page - 1)"
+                       asp-route-pageSize="@Model.PageSize"
+                       asp-route-search="@Model.Search">
+                        Previous
+                    </a>
+                </li>
+
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.Page ? "active" : "")">
+                        <a class="page-link"
+                           asp-route-page="@i"
+                           asp-route-pageSize="@Model.PageSize"
+                           asp-route-search="@Model.Search">
+                            @i
+                        </a>
+                    </li>
+                }
+
+                <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-route-page="@(Model.Page + 1)"
+                       asp-route-pageSize="@Model.PageSize"
+                       asp-route-search="@Model.Search">
+                        Next
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+
     </div>
 </div>

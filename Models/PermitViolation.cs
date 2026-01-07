@@ -25,6 +25,8 @@ public partial class PermitViolation
 
     public ObservationStatus Status { get; set; } = ObservationStatus.Open;
 
+    public string CreatedBy { get; set; } = null!;
+
     public DateTime? ClosedAt { get; set; }
 
     public string? ClosedBy { get; set; }

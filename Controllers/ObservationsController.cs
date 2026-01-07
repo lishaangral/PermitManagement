@@ -42,6 +42,8 @@ public class ObservationsController : Controller
             return RedirectToAction("Index", "Home");
         }
 
+        HttpContext.Session.SetObject("observation-creator", employee);
+
         return View(employee);
     }
 
@@ -242,6 +244,16 @@ public class ObservationsController : Controller
             return RedirectToAction(nameof(Violations));
         }
 
+        var creator = HttpContext.Session.GetObject<EmployeeDetailsViewModel>("observation-creator");
+
+        if (creator == null)
+        {
+            TempData["ToastMessage"] = "Session expired. Please restart the observation.";
+            return RedirectToAction(nameof(Create));
+        }
+
+        var createdByText = $"{creator.EmployeeId} | {creator.EmployeeName}";
+
         foreach (var v in model.Violations)
         {
             bool hasRemarks = !string.IsNullOrWhiteSpace(v.Remarks);
@@ -294,7 +306,9 @@ public class ObservationsController : Controller
                     PermitId = model.PermitId,
                     ViolationId = v.ViolationId,
                     Remarks = v.Remarks,
-                    ActionTaken = v.ActionTaken
+                    ActionTaken = v.ActionTaken,
+                    CreatedBy = createdByText,
+                    CreatedAt = DateTime.UtcNow
                 };
 
                 _context.PermitViolations.Add(permitViolation);
@@ -341,6 +355,7 @@ public class ObservationsController : Controller
 
             HttpContext.Session.Remove("permit-details");
             HttpContext.Session.Remove("violations-page");
+            HttpContext.Session.Remove("observation-creator");
 
             TempData["ToastMessage"] = "Observation submitted successfully.";
 

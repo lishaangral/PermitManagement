@@ -38,8 +38,7 @@
                     continue;
                 }
                     var isChildActive = visibleChildren.Any(c =>
-                    c.Controller == currentController &&
-                    c.Action == currentAction
+                    c.Controller == currentController
                     );
 
                     var isParentRouteActive =

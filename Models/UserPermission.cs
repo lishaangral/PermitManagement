@@ -20,4 +20,6 @@ public partial class UserPermission
     public virtual Permission Permission { get; set; } = null!;
 
     public virtual Employee User { get; set; } = null!;
+
+    public bool? Active { get; set; }
 }

@@ -1,0 +1,31 @@
+﻿@model List<PemitManagement.ViewModels.ReportAnalysis.AgencyReportSummaryVM>
+
+<div class="card mt-3">
+    <div class="card-header">Permits by Agency</div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Agency Name</th>
+                    <th>Total Permits</th>
+                    <th>Permits with Violations</th>
+                    <th>Total Violations</th>
+                    <th>Work Orders</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var a in Model)
+                {
+                    <tr>
+                        <td>@a.AgencyName</td>
+                        <td><span class="badge bg-primary">@a.TotalPermits</span></td>
+                        <td><span class="badge bg-warning">@a.PermitsWithViolations</span></td>
+                        <td><span class="badge bg-danger">@a.TotalViolations</span></td>
+                        <td><span class="badge bg-info">@a.WorkOrders</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

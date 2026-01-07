@@ -1,4 +1,4 @@
-namespace PemitManagement.Models
+namespace PemitManagement.ViewModels
 {
     public class ErrorViewModel
     {
