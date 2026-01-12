@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PemitManagement.Data;
 using PemitManagement.Identity;
-using PemitManagement.Models;
 using PemitManagement.Services;
 using PemitManagement.ViewModels;
+using PemitManagement.ViewModels.Profile;
 using System.Security.Claims;
+using PemitManagement.Authorization;
 
 public class AccountController : Controller
 {
@@ -91,11 +94,90 @@ public class AccountController : Controller
         await _signInManager.SignOutAsync();
         TempData["ToastMessage"] = "Logged out successfully";
         return RedirectToAction("Login", "Account");
+    }  
+
+    [Authorize]
+    public async Task<IActionResult> Profile()
+    {
+        var empNo = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(empNo))
+            return RedirectToAction("Login");
+
+        var employee = await _db.Employees
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.EmpNo == empNo);
+
+        if (employee == null)
+            return RedirectToAction("Login");
+
+        var userPermissions = User.Claims
+            .Where(c => c.Type == "permission")
+            .Select(c => c.Value)
+            .ToHashSet();
+
+        var vm = new ProfileViewModel
+        {
+            EmployeeId = employee.Id,
+            EmpNo = employee.EmpNo,
+            Name = employee.Name,
+            //Department = employee.Department ?? "—",
+            //Designation = employee.Designation ?? "—",
+            Email = employee.Email ?? "—",
+            LastLogin = employee.LastLogin ?? "—",
+            CreatedAt = employee.CreatedAt,
+            UpdatedAt = employee.UpdatedAt,
+            Permissions = PermissionConstants.All
+                .Select(p => new ProfilePermissionVM
+                {
+                    Key = p,
+                    DisplayName = p.Replace("_", " ")
+                                   .Split(' ')
+                                   .Select(w => char.ToUpper(w[0]) + w.Substring(1))
+                                   .Aggregate((a, b) => $"{a} {b}"),
+                    HasPermission = userPermissions.Contains(p)
+                                    || p == PermissionConstants.ViewReports
+                })
+                .ToList()
+        };
+
+        return View(vm);
     }
 
-    public IActionResult Profile()
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangePassword(ProfileViewModel model)
     {
-        return View();
+        if (string.IsNullOrWhiteSpace(model.CurrentPassword) ||
+            string.IsNullOrWhiteSpace(model.NewPassword))
+        {
+            TempData["ToastMessage"] = "Password fields cannot be empty.";
+            return RedirectToAction(nameof(Profile));
+        }
+
+        if (model.NewPassword != model.ConfirmPassword)
+        {
+            TempData["ToastMessage"] = "Passwords do not match.";
+            return RedirectToAction(nameof(Profile));
+        }
+
+        var empNo = User.Identity?.Name;
+        var employee = await _db.Employees.FirstOrDefaultAsync(e => e.EmpNo == empNo);
+
+        if (employee == null || employee.Password != model.CurrentPassword)
+        {
+            TempData["ToastMessage"] = "Current password is incorrect.";
+            return RedirectToAction(nameof(Profile));
+        }
+
+        employee.Password = model.NewPassword;
+        employee.UpdatedAt = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync();
+
+        TempData["ToastMessage"] = "Password updated successfully.";
+        return RedirectToAction(nameof(Profile));
     }
+
 }
 
